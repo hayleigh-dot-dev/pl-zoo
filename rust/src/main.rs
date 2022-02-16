@@ -29,12 +29,11 @@ use std::io::Write;
 // - 19         -> Arrays are fixed-size in Rust, so we need to encode that size
 //                 in the type.
 //
-const WORDS: [&'static str; 1] = ["cover"];
-// const WORDS: [&'static str; 19] = [
-//     "cover", "thick", "kayla", /* 🥰 */ "whack", "trunk", "power", "occur", "racer",
-//     "price", "smack", "crane", "prism", "pully", "lilac", /* 🥰 */
-//     "knoll", "goblin", "price", "thank", "tulip",
-// ];
+const WORDS: [&'static str; 19] = [
+    "cover", "thick", "kayla", /* 🥰 */ "whack", "trunk", "power", "occur", "racer",
+    "price", "smack", "crane", "prism", "pully", "lilac", /* 🥰 */
+    "knoll", "goblin", "price", "thank", "tulip",
+];
 
 #[derive(Debug)]
 enum Guess {
@@ -59,6 +58,9 @@ fn main() -> io::Result<()> {
     // Kayla tells me type annotations aren't really necessary in Rust. She's
     // right of course, a very useful property of HM-derived type systems is the
     // ability for principal type inference.
+    //
+    // I'm going to leave them in because my brain is smol and I barely hanging
+    // on to what's going on as it is.
     let idx: usize = rand::thread_rng().gen_range(0..WORDS.len());
     let target: &str = WORDS[idx];
 
@@ -70,15 +72,10 @@ fn main() -> io::Result<()> {
 
         match check_guess(target, guess) {
             [a @ Guess::Exact(_), b @ Guess::Exact(_), c @ Guess::Exact(_), d @ Guess::Exact(_), e @ Guess::Exact(_)] =>
+            // rust-fmt dropping this curly brace onto a new line might be the
+            // last straw to be perfectly honest. smfh.
             {
-                println!(
-                    "{}{}{}{}{}",
-                    to_coloured_string(&a),
-                    to_coloured_string(&b),
-                    to_coloured_string(&c),
-                    to_coloured_string(&d),
-                    to_coloured_string(&e)
-                );
+                show_full_guess(&a, &b, &c, &d, &e);
                 break;
             }
 
@@ -86,14 +83,7 @@ fn main() -> io::Result<()> {
         }
 
         for (a, b, c, d, e) in &history {
-            println!(
-                "{}{}{}{}{}",
-                to_coloured_string(a),
-                to_coloured_string(b),
-                to_coloured_string(c),
-                to_coloured_string(d),
-                to_coloured_string(e)
-            )
+            show_full_guess(a, b, c, d, e)
         }
 
         guesses += 1;
@@ -164,6 +154,17 @@ fn check_guess(target: &str, input: String) -> [Guess; 5] {
         // array, and then unwrap the result because we know an Error is impossible.
         .try_into()
         .unwrap()
+}
+
+fn show_full_guess(a: &Guess, b: &Guess, c: &Guess, d: &Guess, e: &Guess) -> () {
+    println!(
+        "{}{}{}{}{}",
+        to_coloured_string(a),
+        to_coloured_string(b),
+        to_coloured_string(c),
+        to_coloured_string(d),
+        to_coloured_string(e)
+    )
 }
 
 fn to_coloured_string(guess: &Guess) -> String {
